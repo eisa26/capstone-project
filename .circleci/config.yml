@@ -48,7 +48,7 @@ jobs:
       - run:
           name: push to dockerhub
           command: |
-            dockerpath="capstone"
+            dockerpath="eisa26/capstone"
             docker tag capstone $dockerpath
             echo "Docker ID and Image: $dockerpath"
             docker login --username $DOCKERHUB_USER --password $DOCKERHUB_PWD
