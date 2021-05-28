@@ -69,7 +69,7 @@ jobs:
       - checkout
       - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name 2 >>
+          cluster-name: new-cluster
           aws-region: << parameters.aws-region >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
