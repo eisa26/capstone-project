@@ -1,0 +1,119 @@
+version: 2.1
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  kubernetes: circleci/kubernetes@0.4.0
+
+jobs:
+  build:
+    docker:
+      # Use the same Docker base as the project
+      - image: python:3.7.3-stretch
+    working_directory: ~/repo
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      # run lint!
+      - run:
+          name: run lint
+          command: |
+            . venv/bin/activate
+            make lint
+
+  build-docker-image:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: capstone docker image
+          command: |
+            docker build --tag=capstone .
+            docker images ls
+      - run:
+          name: push to dockerhub
+          command: |
+            dockerpath="capstone"
+            docker tag capstone $dockerpath
+            echo "Docker ID and Image: $dockerpath"
+            echo "$DOCKER_PASS" | docker login --username eisa26 
+            docker tag capstone eisa26/capstone:v1pro3
+            docker image push $dockerpath
+  create-deployment:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        default: 'us-west-2'
+        description: |
+          AWS region that the EKS cluster will be created in.
+        type: string
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.aws-region >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: deployment.yml
+          resource-name: Deployment/cloud-devops-capstone
+  test-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        description: |
+          Name of aws region
+        type: string
+    steps:
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.aws-region >>
+      - run:
+          command: |
+            kubectl get services
+          name: Test cluster
+
+  
+workflows:
+    default:
+        jobs:
+          - lint
+          - build-docker-image:
+              requires: [lint]
+          - aws-eks/create-cluster:
+              cluster-name: capstone
+              aws-region: ${AWS_REGION}
+          - create-deployment:
+             cluster-name: capstone
+             aws-region: us-west-2
+             requires:
+               - aws-eks/create-cluster
+          - test-cluster:
+              cluster-name: capstone
+              aws-region: us-west-2
+              requires:
+                - create-deployment
