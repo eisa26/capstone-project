@@ -73,6 +73,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
+          kubectl apply -f deployment.yml
           resource-file-path: deployment.yml
           resource-name: Deployment/cloud-devops-capstone
   test-cluster:
