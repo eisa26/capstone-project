@@ -36,6 +36,23 @@ jobs:
             . venv/bin/activate
             make lint
 
+  build-docker-image:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: capstone docker image
+          command: |
+            docker build --tag=capstone .
+            docker images ls
+      - run:
+          name: push to dockerhub
+          command: |
+            dockerpath="capstone"
+            docker tag capstone $dockerpath
+            echo "Docker ID and Image: $dockerpath"
+            docker login --username $DOCKERHUB_USER --password $DOCKERHUB_PWD
+            docker image push $dockerpath
   create-deployment:
     executor: aws-eks/python3
     parameters:
@@ -84,16 +101,18 @@ workflows:
     default:
         jobs:
           - lint
+          - build-docker-image:
+              requires: [lint]
           - aws-eks/create-cluster:
-              cluster-name: newimage
+              cluster-name: capstone
               aws-region: ${AWS_REGION}
           - create-deployment:
-             cluster-name: newimage
+             cluster-name: capstone
              aws-region: us-west-2
              requires:
                - aws-eks/create-cluster
           - test-cluster:
-              cluster-name: newimage
+              cluster-name: capstone
               aws-region: us-west-2
               requires:
                 - create-deployment
