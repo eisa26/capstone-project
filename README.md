@@ -1,58 +1,31 @@
-[![CircleCI](https://circleci.com/gh/eisa26/-Microservices-at-Scale-using-AWS-Kubernetes-project.svg?style=svg)](https://circleci.com/gh/eisa26/-Microservices-at-Scale-using-AWS-Kubernetes-project)
+[![CircleCI](https://circleci.com/gh/eisa26/capstone-project.svg?style=svg)](https://circleci.com/gh/eisa26/capstone-project)
 
-# Cloud DevOps, Scaling Microservices
+# capstone-Project Overview
 
-The project's goal is to operationalize a machine learning microservice using kubernetes. The service serves out predictions (inference) about housing prices through API calls. The model has been trained to predict housing prices in Boston according to several features, such as average rooms in a home and data about highway access, teacher-to-pupil ratios, and so on.
+In this Cloud DevOps capstone project, I applied most of the skills which I acquired during this Cloud DevOps Nanodegree.
 
-
-### Install
-
-- Docker
-- Virtualbox
-
-For Mac:
-
-```
-brew cask install virtualbox
-```
-
-- Minikube
-
-```
-brew cask install minikube
-```
-
-### Files explanation
-- config.yml: CircleCI configuration file for running the tests
-- app.py: Python flask app that serves out predictions (inference) about housing prices through API calls
-- Dockerfile: Dockerfile for building the image
-- make_prediction.sh: Send a request to the Python flask app to get a prediction, for localhost
-- make_prediction2.sh: Send a request to the Python flask app to get a prediction, for minikube kubernetes
-- Makefile: includes instructions on environment setup and lint tests
-- run_docker.sh: file to be able to get Docker running, locally
-- run_kubernetes.sh: file to run the app in kubernetes
-- upload_docker.sh: file to upload the image to docker
+    Using AWS Platform to demonstrate my porject.
+    Using hadolint to lint dockerfile.
+    using Make file.
+    Using CircleCi to build my CI/CD pipeline.
+    Build Docker Image in my CI/CD pipeline
+    Using CircleCi EKS orbs to deploy cluster.
 
 
-### Run the project
+
+### CI/CD pipeline
+
+build docker image In this step I built my docker image and pushed it the dockerhub
 
 
-1. You should have a virtual machine like VirtualBox and minikube installed, as per the project environmet instructions. To start a local cluster, type the terminal command: 
-```
-minikube start
-```
 
-2. To deploy this application in kubernetes run:
-```
-./run_kubernetes.sh
-```
+### Configure environment variables on CircleCI
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_DEFAULT_REGION
+- DOCKERHUB_USER
+- DOCKERHUB_PWD
 
-3. After you’ve called run_kubernetes.sh, and a pod is up and running, make a prediction using a separate terminal tab and run 
-```
-./make_prediction2.sh
-```
 
-4. Delete the cluster
-```
-minikube delete
-```
+
+
