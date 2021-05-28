@@ -51,7 +51,6 @@ jobs:
             dockerpath="capstone"
             docker tag capstone $dockerpath
             echo "Docker ID and Image: $dockerpath"
-            echo "$DOCKER_PASS" | docker login --username eisa26 
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
             docker image push $dockerpath
   create-deployment:
