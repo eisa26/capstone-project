@@ -53,7 +53,6 @@ jobs:
             echo "Docker ID and Image: $dockerpath"
             docker login --username $DOCKERHUB_USER --password $DOCKERHUB_PWD
             docker image push $dockerpath
-            kubectl apply -f deployment.yml 
   create-deployment:
     executor: aws-eks/python3
     parameters:
@@ -68,6 +67,8 @@ jobs:
         type: string
     steps:
       - checkout
+          command: | 
+            kubectl apply -f deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: << parameters.aws-region >>
